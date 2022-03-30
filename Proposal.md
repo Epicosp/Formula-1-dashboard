@@ -1,13 +1,15 @@
 # FormulaDank
 ---
-
-## Research question
-- technological improvement of F1 cars over time [lap time, win %, pit time]  consider availability data
-- correlation between [driver age with time, team budget, qualifying/starting position, team size, homegrond advantage, pitstop speed/time/amount] win %
-- track type, weather conditions] for driver win rate
+# Overview
+Formula 1 represents the pinnacle of modern automotive engineering and is associated with many fascinating research questions. The purpose of this dashboard is to define and visualise a few key areas of the sport, with the aim of understanding the impact of strategy, technology and budget on a teams success. 
+## Research questions
+- correlation between qualifying/starting position and final position
+- technological improvement of F1 cars over time lap time
+- correlation between pitstop time and final position
+- weather conditions for driver position
 - country of origin for driver for team
-- strategy, compate number of pits stops to track type
-
+- what is the winnning strategy?
+- what is the impact of team budget?
 ## Scope
 - focusing on entire sport
 - plot by countries/driver/team
@@ -21,10 +23,12 @@
 - https://newsapi.org/
 - https://www.essentiallysports.com/f1-news-what-are-the-budgets-for-f1-teams-including-mercedes-red-bull-ferrari/
 - http://ergast.com/mrd/
+- https://f1mix.com/circuits/
 
+### breakdown of tasks
 ---
 ### Team members
-- (PM) Terty Blaser
+- (PM) Terry Blaser
 - Keanu Manson
 - Tarik Thomas
 - Wai Fatt Yee
