@@ -23,6 +23,8 @@ Formula 1 represents the pinnacle of modern automotive engineering and is associ
 - https://www.essentiallysports.com/f1-news-what-are-the-budgets-for-f1-teams-including-mercedes-red-bull-ferrari/
 - http://ergast.com/mrd/
 - https://f1mix.com/circuits/
+- https://pypi.org/project/formula1py/
+- https://theoehrly.github.io/Fast-F1/
 
 ### breakdown of tasks
 - data (mining/wrangling/cleaning/reshaping) (Tarik)
