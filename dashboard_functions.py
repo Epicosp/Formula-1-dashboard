@@ -100,35 +100,64 @@ def pit_pos_tracks():
 
 
 def avg_budget_by_year():
-    # set index to year
+    # get and format data
     plot_data = budget.set_index('Year')
 
-    # plot total budget spend
-    plt.figure(figsize=(15,10))
+    # init figure
+    fig, ax = plt.subplots(figsize=(15,10))
+    
+    # plot total budget spend and format
     for col in plot_data.columns:
         plt.plot(plot_data[col], label=col)
     plt.legend()
     plt.title("Formula-1 Budget Spent from 2017 to 2021")
+    
+    # close fig to avoid showing when function is called
+    plt.close()
+    
+    return fig
 
 def avg_budget_by_year_bar():
+    # get and format data
     bar = pd.melt(budget, id_vars='Year')
     bar = bar.groupby("Year").agg(average_budget_all =('value','mean'))
-    plt.figure(figsize=(15,10))
+    
+    fig, ax = plt.subplots(figsize=(15,10))
+    
     sns.barplot(x = bar.index, y = bar["average_budget_all"])
     plt.title("Average budget spent by all the companies")
     plt.ylabel("Average Budget spent in $")
+    
+    plt.close()
+
+    return fig
 
 def budget_by_constructor():
+    # get and format data
     const_bar = pd.melt(budget, id_vars='Year')
-    plt.figure(figsize=(15,10))
+    
+    # init figure
+    fig, ax = plt.subplots(figsize=(15,10))
+    
+    
+    # plot and format
     sns.barplot(x='Year', y='value', hue='variable', data=const_bar)
     plt.title("Formula-1 Budget Spent from 2017 to 2021")
     plt.xlabel("Year")
     plt.ylabel("Budget Spent in $")
     
+    plt.close()
+    
+    return fig
+    
 def budget_stackplot():
+    # get and format data
     stackplot = budget.set_index('Year')
-    plt.figure(figsize=(15,10))
+    
+    # init figure
+    fig, ax = plt.subplots(figsize=(15,10))
+    
+    # plot
     plt.stackplot(
         stackplot.index,
         stackplot['Mercedes'],
@@ -141,9 +170,16 @@ def budget_stackplot():
         stackplot['AlphaRomeo'],
         stackplot['Williams'],
         stackplot['Haas'],
-        labels = list(stackplot.columns)
+        labels = list(stackplot.columns),
     )
+    
+    # formatting
     plt.legend()
     plt.ylabel("Total Budget Spent")
     plt.title("Formula1 Budget Overall")
     plt.xlabel("Year")
+    
+    plt.close()
+    
+    return fig
+    
