@@ -24,21 +24,20 @@ pit_stops = pit_stops.groupby(['raceId', 'driverId']).sum().drop(columns=['stop'
 races = pd.read_csv('f1db_csv/races_edited.csv').set_index('raceId')
 
 # concat pit_stops and standings by index, ensuring that raceId and driverId are the same
-data = pd.concat([pit_stops, standings], join='inner', axis='columns')
+pit_data = pd.concat([pit_stops, standings], join='inner', axis='columns')
 
 # filter by total sum of pit time <500000 ms, removing outliers and excessivly long pit times.
-data = data[data['milliseconds']<500000]
+pit_data = pit_data[pit_data['milliseconds']<500000]
 
 # remove multi indexing
-data = data.reset_index()
+pit_data = pit_data.reset_index()
 
 # left merge data with races by raceId, and reset_index, slice to use only nessecary data.
-data = data.merge(races, on='raceId' , how='left').reset_index()
-data = data[['raceId', 'driverId', 'milliseconds', 'driverStandingsId', 'circuitId', 'position']]
+pit_data = pit_data.merge(races, on='raceId' , how='left').reset_index()
+pit_data = pit_data[['raceId', 'driverId', 'milliseconds', 'driverStandingsId', 'circuitId', 'position']]
 
 # left merge data with circuits, by circuitId
-data = data.merge(circuits, on='circuitId', how='left')
-
+pit_data = pit_data.merge(circuits, on='circuitId', how='left')
 
 def time_to_next_race():
     # call api for current season
@@ -68,16 +67,19 @@ def time_to_next_race():
 
 def pit_time_histogram():
     # multimodal data can be attributed to the modes of pit times ie: 1 stop for entire race vs 2 or 3 stops etc...
-    histogram = data.hvplot.hist(y='milliseconds',bins = 200, height=500, width=900)
+    histogram = pit_data.hvplot.hist(y='milliseconds',bins = 200, height=500, width=900)
     return histogram
 
 def pit_pos():
     # take the average pit time for top 20 positions and plot with trendline (data becomes thin after the top 20)
-    avg_pt_for_position = data.groupby('position').mean().reset_index().head(20)
+    avg_pt_for_position = pit_data.groupby('position').mean().reset_index().head(20)
     scatter = px.scatter(avg_pt_for_position, x='position', y='milliseconds', trendline="ols")
     return scatter
 
 def pit_pos_tracks():
-    data_by_tracks = data.groupby(['name','position']).mean().reset_index()
+    data_by_tracks = pit_data.groupby(['name','position']).mean().reset_index()
     scatter = data_by_tracks.hvplot.scatter(x='position', y='milliseconds', groupby='name')
     return scatter
+
+
+
