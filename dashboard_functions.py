@@ -5,8 +5,14 @@ import matplotlib.pyplot as plt
 import time
 import datetime as dt
 import hvplot.pandas
+import seaborn as sns
+import numpy as np
+import matplotlib.style as style
+style.use('fivethirtyeight')
 
 
+
+'''Pit stop data'''
 # read circuits, slice for nessecary data
 circuits = pd.read_csv('f1db_csv/circuits.csv')
 circuits = circuits[['circuitId', 'name']].set_index('circuitId')
@@ -39,6 +45,17 @@ pit_data = pit_data[['raceId', 'driverId', 'milliseconds', 'driverStandingsId', 
 # left merge data with circuits, by circuitId
 pit_data = pit_data.merge(circuits, on='circuitId', how='left')
 
+
+'''Budget data'''
+# import data from csv
+budget = pd.read_csv("f1db_csv/Formula1_Budgets.csv")
+
+# remove $ and change value type to float
+for col in budget.columns[1:]:
+    budget[col] = budget[col].str.replace('$', '', regex=True)
+    budget[col] = budget[col].astype('float')
+
+'''Functions'''
 def time_to_next_race():
     # call api for current season
     url = 'http://ergast.com/api/f1/current.json'
@@ -82,4 +99,51 @@ def pit_pos_tracks():
     return scatter
 
 
+def avg_budget_by_year():
+    # set index to year
+    plot_data = budget.set_index('Year')
 
+    # plot total budget spend
+    plt.figure(figsize=(15,10))
+    for col in plot_data.columns:
+        plt.plot(plot_data[col], label=col)
+    plt.legend()
+    plt.title("Formula-1 Budget Spent from 2017 to 2021")
+
+def avg_budget_by_year_bar():
+    bar = pd.melt(budget, id_vars='Year')
+    bar = bar.groupby("Year").agg(average_budget_all =('value','mean'))
+    plt.figure(figsize=(15,10))
+    sns.barplot(x = bar.index, y = bar["average_budget_all"])
+    plt.title("Average budget spent by all the companies")
+    plt.ylabel("Average Budget spent in $")
+
+def budget_by_constructor():
+    const_bar = pd.melt(budget, id_vars='Year')
+    plt.figure(figsize=(15,10))
+    sns.barplot(x='Year', y='value', hue='variable', data=const_bar)
+    plt.title("Formula-1 Budget Spent from 2017 to 2021")
+    plt.xlabel("Year")
+    plt.ylabel("Budget Spent in $")
+    
+def budget_stackplot():
+    stackplot = budget.set_index('Year')
+    plt.figure(figsize=(15,10))
+    plt.stackplot(
+        stackplot.index,
+        stackplot['Mercedes'],
+        stackplot['Ferrari'],
+        stackplot['RedBull'],
+        stackplot['Mclaren'],
+        stackplot['Alpine/Renault'],
+        stackplot['Aston Martin/Racing Point/Force India'],
+        stackplot['AlphaTauri/Toro Rossi'],
+        stackplot['AlphaRomeo'],
+        stackplot['Williams'],
+        stackplot['Haas'],
+        labels = list(stackplot.columns)
+    )
+    plt.legend()
+    plt.ylabel("Total Budget Spent")
+    plt.title("Formula1 Budget Overall")
+    plt.xlabel("Year")
