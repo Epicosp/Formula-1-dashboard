@@ -14,20 +14,20 @@ style.use('fivethirtyeight')
 
 '''Pit stop data'''
 # read circuits, slice for nessecary data
-circuits = pd.read_csv('f1db_csv/circuits.csv')
+circuits = pd.read_csv('data/circuits.csv')
 circuits = circuits[['circuitId', 'name']].set_index('circuitId')
 
 # read standings data, groupby unique identifiers for concat (sum wins for extra analysis)
-standings = pd.read_csv('f1db_csv/driver_standings.csv')
+standings = pd.read_csv('data/driver_standings.csv')
 standings = standings.groupby(['raceId', 'driverId']).sum('wins')
 
 # read pit_stops, groupby keys to get unique pit times for each driver during each race, sum to get total pit time.
-pit_stops = pd.read_csv('f1db_csv/pit_stops.csv')
+pit_stops = pd.read_csv('data/pit_stops.csv')
 pit_stops = pit_stops.groupby(['raceId', 'driverId']).sum().drop(columns=['stop', 'lap'])
 
 # read races csv, for some reason this data contains columns with lots of null data and the column names are offset, 
 # so the original csv was edited in excel to remove these columns.
-races = pd.read_csv('f1db_csv/races_edited.csv').set_index('raceId')
+races = pd.read_csv('data/races_edited.csv').set_index('raceId')
 
 # concat pit_stops and standings by index, ensuring that raceId and driverId are the same
 pit_data = pd.concat([pit_stops, standings], join='inner', axis='columns')
@@ -48,7 +48,7 @@ pit_data = pit_data.merge(circuits, on='circuitId', how='left')
 
 '''Budget data'''
 # import data from csv
-budget = pd.read_csv("f1db_csv/Formula1_Budgets.csv")
+budget = pd.read_csv("data/Formula1_Budgets.csv")
 
 # remove $ and change value type to float
 for col in budget.columns[1:]:
