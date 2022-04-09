@@ -84,18 +84,37 @@ def time_to_next_race():
 
 def pit_time_histogram():
     # multimodal data can be attributed to the modes of pit times ie: 1 stop for entire race vs 2 or 3 stops etc...
-    histogram = pit_data.hvplot.hist(y='milliseconds',bins = 200, height=500, width=900)
+    histogram = pit_data.hvplot.hist(
+        y='milliseconds',
+        bins = 200,
+        height=500,
+        width=900
+    )
     return histogram
 
 def pit_pos():
     # take the average pit time for top 20 positions and plot with trendline (data becomes thin after the top 20)
     avg_pt_for_position = pit_data.groupby('position').mean().reset_index().head(20)
-    scatter = px.scatter(avg_pt_for_position, x='position', y='milliseconds', trendline="ols")
+    scatter = px.scatter(
+        avg_pt_for_position,
+        x='position',
+        y='milliseconds',
+        trendline="ols",
+        width = 1500,
+        height = 500
+    )
     return scatter
 
 def pit_pos_tracks():
-    data_by_tracks = data.groupby(['name','position']).filter(lambda x: len(x) > 5).groupby(['name','position']).mean().reset_index()
-    scatter = data_by_tracks.hvplot.scatter(x='position', y='milliseconds', groupby='name')
+    data_by_tracks = pit_data.groupby(['name','position']).filter(lambda x: len(x) > 5).groupby(['name','position']).mean().reset_index()
+    scatter = data_by_tracks.hvplot.scatter(
+        x='position',
+        y='milliseconds',
+        groupby='name',
+        width = 900,
+        height = 500
+    )
+
     return scatter
 
 def avg_budget_by_year():
