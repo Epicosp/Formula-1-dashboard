@@ -94,10 +94,9 @@ def pit_pos():
     return scatter
 
 def pit_pos_tracks():
-    data_by_tracks = pit_data.groupby(['name','position']).mean().reset_index()
+    data_by_tracks = data.groupby(['name','position']).filter(lambda x: len(x) > 5).groupby(['name','position']).mean().reset_index()
     scatter = data_by_tracks.hvplot.scatter(x='position', y='milliseconds', groupby='name')
     return scatter
-
 
 def avg_budget_by_year():
     # get and format data
