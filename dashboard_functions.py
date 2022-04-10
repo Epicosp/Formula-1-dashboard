@@ -100,8 +100,9 @@ def pit_pos():
         x='position',
         y='milliseconds',
         trendline="ols",
-        width = 1500,
-        height = 500
+        width = 1600,
+        height = 500,
+        
     )
     return scatter
 
@@ -112,9 +113,22 @@ def pit_pos_tracks():
         y='milliseconds',
         groupby='name',
         width = 900,
-        height = 500
+        height = 500,
+        widget_location= 'top'
     )
 
+    return scatter
+
+def pit_improvements():
+    improvements = pit_data.groupby('raceId').mean().reset_index()
+    scatter = px.scatter(
+        improvements,
+        x='raceId',
+        y='milliseconds',
+        trendline="ols",
+        width = 1600,
+        height = 500,
+        )
     return scatter
 
 def avg_budget_by_year():
