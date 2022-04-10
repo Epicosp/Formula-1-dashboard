@@ -10,8 +10,6 @@ import numpy as np
 import matplotlib.style as style
 style.use('fivethirtyeight')
 
-
-
 '''Pit stop data'''
 # read circuits, slice for nessecary data
 circuits = pd.read_csv('data/circuits.csv')
@@ -54,6 +52,12 @@ budget = pd.read_csv("data/Formula1_Budgets.csv")
 for col in budget.columns[1:]:
     budget[col] = budget[col].str.replace('$', '', regex=True)
     budget[col] = budget[col].astype('float')
+    
+    
+'''Podium data'''
+# Read from online data source
+podium_data = pd.read_html('https://en.everybodywiki.com/List_of_Formula_One_podium_finishers')
+podium_data = podium_data[3]
 
 '''Functions'''
 def time_to_next_race():
@@ -214,4 +218,38 @@ def budget_stackplot():
     plt.close()
     
     return fig
+
+# Create function
+def podium_country():
+    # prepare podium data by country
+    by_country = podium_data.loc[:,['Country','Podiums']].groupby('Country').sum().reset_index().sort_values('Podiums',ascending=True)
+    by_country = by_country.sort_values(by = 'Podiums',ascending=False).nlargest(10,'Podiums')
     
+    #plot podium data by country
+    podium_finishes_country = px.bar(
+        by_country,
+        title='Top 10 F1 Podium Finishes by Country (1950 - 2018)',
+        x='Podiums',
+        orientation='h',
+        y='Country',
+        height = 500,
+        color='Country').update_layout(showlegend=False)
+    
+    return podium_finishes_country
+
+def podium_driver():
+    # prepare podium data by driver data
+    by_driver=podium_data.loc[:,['Driver','Podiums']].groupby('Driver').sum().reset_index().sort_values('Podiums',ascending=True)
+    by_driver = by_driver.sort_values(by = 'Podiums',ascending=False).nlargest(20,'Podiums')
+    
+    #plot podium data by driver
+    podium_finishes_driver = px.bar(
+        by_driver,
+        title='Top 20 F1 Podium Finishes by Driver (1950 - 2018)',
+        x='Podiums',
+        orientation='h',
+        y='Driver',
+        height = 500,
+        color='Driver').update_layout(showlegend=False)
+    
+    return podium_finishes_driver
