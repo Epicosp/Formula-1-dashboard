@@ -59,6 +59,11 @@ for col in budget.columns[1:]:
 podium_data = pd.read_html('https://en.everybodywiki.com/List_of_Formula_One_podium_finishers')
 podium_data = podium_data[3]
 
+
+'''sunburst plots data'''
+# read from master table csv
+sunburst_data = pd.read_csv('data/master_table.csv')
+
 '''Functions'''
 def time_to_next_race():
     # call api for current season
@@ -253,3 +258,4 @@ def podium_driver():
         color='Driver').update_layout(showlegend=False)
     
     return podium_finishes_driver
+
