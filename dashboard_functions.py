@@ -10,8 +10,6 @@ import numpy as np
 import matplotlib.style as style
 style.use('fivethirtyeight')
 
-
-
 '''Pit stop data'''
 # read circuits, slice for nessecary data
 circuits = pd.read_csv('data/circuits.csv')
@@ -54,6 +52,73 @@ budget = pd.read_csv("data/Formula1_Budgets.csv")
 for col in budget.columns[1:]:
     budget[col] = budget[col].str.replace('$', '', regex=True)
     budget[col] = budget[col].astype('float')
+    
+    
+'''Podium data'''
+# Read from online data source
+podium_data = pd.read_html('https://en.everybodywiki.com/List_of_Formula_One_podium_finishers')
+podium_data = podium_data[3]
+
+
+'''sunburst plots data'''
+# read from master table csv
+sunburst_data = pd.read_csv('data/master_table.csv')
+
+'''mapbox data'''
+master_circuits_cleaned = pd.read_csv('data/master_circuits_cleaned.csv')
+
+'''data for driver country of origin'''
+def driver_data():
+    list_of_formula_one_drivers = pd.read_html('https://en.wikipedia.org/wiki/List_of_Formula_One_drivers')
+    drivers_country = list_of_formula_one_drivers[2]
+    
+    
+    #DATA SORTING AND CLEANING
+    #sortby naationailtiy 
+    country = drivers_country.groupby('Nationality')
+
+    
+    #refine data to just these columns 
+    #just name and nationality for drivers in a table/df, renaming
+    name_nationality = drivers_country[['Driver Name', 'Nationality']]
+    name_nationality.rename(columns = {"Driver Name": "driver_name"}, inplace=True)
+
+    
+    #give numeric value for each driver (one diver equals 1 driver)
+    name_nationality['count'] = 1
+    name_nationality = name_nationality.drop('driver_name', 1) #droppping diver name colunm leaving us just with nationality and a driver unit(1 driver name = 1 driver)
+
+
+    #cleaning data
+    #Nationality splitting counts from nationality column with a function
+    def update_data(value_, new_value):
+        index = name_nationality[name_nationality['Nationality']==value_].index.values
+        name_nationality.iloc[index, name_nationality.columns.get_loc('Nationality')] = new_value
+        return index
+
+    update_data(value_='Argentina[50]', new_value='Argentina')
+    update_data(value_='Morocco[43]', new_value='Morocco')
+    update_data(value_='Argentina[50]', new_value='Argentina')
+    update_data(value_='East Germany, West Germany[f]', new_value='Germany')
+    update_data(value_='East Germany', new_value='Germany')
+    update_data(value_='West Germany', new_value='Germany')
+    update_data(value_='Rhodesia and Nyasaland', new_value='Rhodesia')
+
+    #dropping rows that have non relevant incorrect data
+    #index_nationality = name_nationality[name_nationality['Nationality']=='Nationality'].index.values
+    name_nationality = name_nationality.drop([name_nationality.index[865], name_nationality.index[505]])
+    
+    
+    #VISUALISATION
+    #sum all drivers (units) into their nationalities 
+    name_nationality = name_nationality.apply(name_nationality.value_counts).fillna(0)
+    name_nationality = name_nationality.sort_values('Nationality')
+    name_nationality = name_nationality.drop('count', 1)
+    name_nationality = name_nationality.drop(name_nationality.index[0])  #weird 1 in the countries column with a 0 for count, deleting
+    
+    return name_nationality
+
+driver_data = driver_data()
 
 '''Functions'''
 def time_to_next_race():
@@ -99,7 +164,7 @@ def pit_pos():
         avg_pt_for_position,
         x='position',
         y='milliseconds',
-        trendline="ols",
+        trendline="lowess",
         width = 1600,
         height = 500,
         
@@ -214,4 +279,98 @@ def budget_stackplot():
     plt.close()
     
     return fig
+
+# Create function
+def podium_country():
+    # prepare podium data by country
+    by_country = podium_data.loc[:,['Country','Podiums']].groupby('Country').sum().reset_index().sort_values('Podiums',ascending=True)
+    by_country = by_country.sort_values(by = 'Podiums',ascending=False).nlargest(10,'Podiums')
     
+    #plot podium data by country
+    podium_finishes_country = px.bar(
+        by_country,
+        title='Top 10 F1 Podium Finishes by Country (1950 - 2018)',
+        x='Podiums',
+        orientation='h',
+        y='Country',
+        height = 500,
+        color='Country').update_layout(showlegend=False)
+    
+    return podium_finishes_country
+
+def podium_driver():
+    # prepare podium data by driver data
+    by_driver=podium_data.loc[:,['Driver','Podiums']].groupby('Driver').sum().reset_index().sort_values('Podiums',ascending=True)
+    by_driver = by_driver.sort_values(by = 'Podiums',ascending=False).nlargest(20,'Podiums')
+    
+    #plot podium data by driver
+    podium_finishes_driver = px.bar(
+        by_driver,
+        title='Top 20 F1 Podium Finishes by Driver (1950 - 2018)',
+        x='Podiums',
+        orientation='h',
+        y='Driver',
+        height = 500,
+        color='Driver').update_layout(showlegend=False)
+    
+    return podium_finishes_driver
+
+def constructor_sunburst():
+    plot_constructor = px.sunburst(
+        sunburst_data, path=['Year','City','Winning constructor'], 
+        width=1000, 
+        height=800, 
+        color='Winning constructor', 
+        hover_data=['Fastest lap','Pole position','Winning driver'],
+        title='Winning Constructors by Year'
+    )
+    return plot_constructor
+
+def driver_sunburst():
+    plot_driver = px.sunburst(
+        sunburst_data, 
+        path=['Year','City','Fastest lap','Pole position','Winning driver'],
+        width=1000, 
+        height=800, 
+        color='Winning driver', 
+        hover_data=['Winning constructor'],
+        color_discrete_map={'Lewis Hamilton':'black', 'Sebastian Vettel':'gold', 'Lewis Hamilton':'darkblue'},
+        title='Winning Drivers by Year'
+    )
+    return plot_driver
+
+# Create function
+def world_circuit_map():
+    '''World Map of F1 Circuits'''
+    
+    load_dotenv()
+    map_box_api = os.getenv("mapbox")
+
+    #Set the Mapbox API
+    px.set_mapbox_access_token(map_box_api)
+    
+    #plot data to scatter mapbox
+    plot =  px.scatter_mapbox(
+        data_frame = master_circuits_cleaned,
+        lat = 'Latitude',
+        lon = 'Longitude',
+        color = 'Name',
+        mapbox_style = 'open-street-map',
+        zoom = 1,
+        size_max = 20,
+        height = 800,
+        width = 1450,
+        hover_data = ['Last length used','Season(s)','N. races', 'Direction', 'Type'],
+        title = 'F1 Circuit Locations Around the World'
+    )
+    return plot
+
+def drivers_per_country():
+    #plot bar chart
+    fig,ax = plt.subplots(figsize=(12,10))
+    
+    driver_data.plot.bar(xlabel='Country', ylabel='Amount of Drivers', title='Drivers Per Country 1950-2022', figsize=(12,10), ax = ax)
+    
+    plt.close()
+    
+    return fig
