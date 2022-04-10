@@ -67,6 +67,59 @@ sunburst_data = pd.read_csv('data/master_table.csv')
 '''mapbox data'''
 master_circuits_cleaned = pd.read_csv('data/master_circuits_cleaned.csv')
 
+'''data for driver country of origin'''
+def driver_data():
+    list_of_formula_one_drivers = pd.read_html('https://en.wikipedia.org/wiki/List_of_Formula_One_drivers')
+    drivers_country = list_of_formula_one_drivers[2]
+    
+    
+    #DATA SORTING AND CLEANING
+    #sortby naationailtiy 
+    country = drivers_country.groupby('Nationality')
+
+    
+    #refine data to just these columns 
+    #just name and nationality for drivers in a table/df, renaming
+    name_nationality = drivers_country[['Driver Name', 'Nationality']]
+    name_nationality.rename(columns = {"Driver Name": "driver_name"}, inplace=True)
+
+    
+    #give numeric value for each driver (one diver equals 1 driver)
+    name_nationality['count'] = 1
+    name_nationality = name_nationality.drop('driver_name', 1) #droppping diver name colunm leaving us just with nationality and a driver unit(1 driver name = 1 driver)
+
+
+    #cleaning data
+    #Nationality splitting counts from nationality column with a function
+    def update_data(value_, new_value):
+        index = name_nationality[name_nationality['Nationality']==value_].index.values
+        name_nationality.iloc[index, name_nationality.columns.get_loc('Nationality')] = new_value
+        return index
+
+    update_data(value_='Argentina[50]', new_value='Argentina')
+    update_data(value_='Morocco[43]', new_value='Morocco')
+    update_data(value_='Argentina[50]', new_value='Argentina')
+    update_data(value_='East Germany, West Germany[f]', new_value='Germany')
+    update_data(value_='East Germany', new_value='Germany')
+    update_data(value_='West Germany', new_value='Germany')
+    update_data(value_='Rhodesia and Nyasaland', new_value='Rhodesia')
+
+    #dropping rows that have non relevant incorrect data
+    #index_nationality = name_nationality[name_nationality['Nationality']=='Nationality'].index.values
+    name_nationality = name_nationality.drop([name_nationality.index[865], name_nationality.index[505]])
+    
+    
+    #VISUALISATION
+    #sum all drivers (units) into their nationalities 
+    name_nationality = name_nationality.apply(name_nationality.value_counts).fillna(0)
+    name_nationality = name_nationality.sort_values('Nationality')
+    name_nationality = name_nationality.drop('count', 1)
+    name_nationality = name_nationality.drop(name_nationality.index[0])  #weird 1 in the countries column with a 0 for count, deleting
+    
+    return name_nationality
+
+driver_data = driver_data()
+
 '''Functions'''
 def time_to_next_race():
     # call api for current season
@@ -311,3 +364,13 @@ def world_circuit_map():
         title = 'F1 Circuit Locations Around the World'
     )
     return plot
+
+def drivers_per_country():
+    #plot bar chart
+    fig,ax = plt.subplots(figsize=(12,10))
+    
+    driver_data.plot.bar(xlabel='Country', ylabel='Amount of Drivers', title='Drivers Per Country 1950-2022', figsize=(12,10), ax = ax)
+    
+    plt.close()
+    
+    return fig
