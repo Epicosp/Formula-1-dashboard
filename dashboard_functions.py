@@ -1,5 +1,7 @@
 import requests
 import pandas as pd
+import panel as pn
+pn.extension('echarts', 'plotly')
 import plotly.express as px
 import matplotlib.pyplot as plt
 import time
@@ -68,6 +70,7 @@ sunburst_data = pd.read_csv('data/master_table.csv')
 master_circuits_cleaned = pd.read_csv('data/master_circuits_cleaned.csv')
 
 '''data for driver country of origin'''
+
 def driver_data():
     list_of_formula_one_drivers = pd.read_html('https://en.wikipedia.org/wiki/List_of_Formula_One_drivers')
     drivers_country = list_of_formula_one_drivers[2]
@@ -121,7 +124,26 @@ def driver_data():
 driver_data = driver_data()
 
 '''Functions'''
-def time_to_next_race():
+def top_driver_points_gauge():
+    url = 'http://ergast.com/api/f1/current/DriverStandings.json'
+    data = requests.get(url).json()
+    points = int(data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings'][0]['points'])
+    gname = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings'][0]['Driver']['givenName']
+    fname = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings'][0]['Driver']['familyName']
+    max_points = 23 * 25
+    gauge = pn.indicators.Gauge(name=f'Top points:\n{gname} {fname}', value=points, bounds=(0, max_points), colors=[(0.8,'white'),(1,'red')], format='{value}pts')
+    return gauge
+
+def top_constructor_points_gauge():
+    url = 'http://ergast.com/api/f1/current/ConstructorStandings.json'
+    data = requests.get(url).json()
+    points = int(data['MRData']['StandingsTable']['StandingsLists'][0]['ConstructorStandings'][0]['points'])
+    constructor = data['MRData']['StandingsTable']['StandingsLists'][0]['ConstructorStandings'][0]['Constructor']['name']
+    max_points = 23 * 25 + 23 * 18
+    gauge = pn.indicators.Gauge(name=f'Top points:\n{constructor}', value=points, bounds=(0, max_points), colors=[(0.8,'white'),(1,'red')], format='{value}pts')
+    return gauge
+
+def time_to_next_race_gauge():
     # call api for current season
     url = 'http://ergast.com/api/f1/current.json'
     data = requests.get(url).json()
@@ -134,18 +156,21 @@ def time_to_next_race():
         if dt.datetime.strptime(race['date'],'%Y-%m-%d').isoformat() < today:
             previous_race = dt.datetime.strptime(race['date'],'%Y-%m-%d').isoformat()
         else:
-            next_race = dt.datetime.strptime(race['date'],'%Y-%m-%d').isoformat()
+            next_race = dt.datetime.strptime(race['date'],'%Y-%m-%d')
+            next_race_iso = next_race.isoformat()
             break
             
     # convert dates to numbers
-    previous_race = dt.datetime.fromisoformat(previous_race).timestamp()
-    next_race = dt.datetime.fromisoformat(next_race).timestamp()
+    previous_race_val = dt.datetime.fromisoformat(previous_race).timestamp()
+    next_race_val = dt.datetime.fromisoformat(next_race_iso).timestamp()
     now = dt.datetime.fromisoformat(today).timestamp()
     
     #calculate the percentage time till the next race from the previous race.
-    pct_ttnr = round((((now-previous_race)/(next_race-previous_race)))*100, 2)
+    pct_ttnr = round((((now-previous_race_val)/(next_race_val-previous_race_val)))*100, 2)
     
-    return pct_ttnr
+    gauge = pn.indicators.Gauge(name=f'Next Race', value=pct_ttnr, bounds=(0, 100), colors=[(0.8,'white'),(1,'red')], format=str(next_race.date()))
+    
+    return gauge
 
 def pit_time_histogram():
     # multimodal data can be attributed to the modes of pit times ie: 1 stop for entire race vs 2 or 3 stops etc...
