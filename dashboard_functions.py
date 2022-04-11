@@ -188,7 +188,7 @@ def pit_pos():
         avg_pt_for_position,
         x='position',
         y='milliseconds',
-        trendline="lowess",
+        trendline="ols",
         width = 1600,
         height = 500,
         
