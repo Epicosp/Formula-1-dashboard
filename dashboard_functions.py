@@ -374,3 +374,94 @@ def drivers_per_country():
     plt.close()
     
     return fig
+
+
+def tech_improvement_data():
+    # Create parameterized url
+    dicAUS = {}
+    dicMON = {}
+    dicItaly = {}
+    for i in range(2009,2020):
+        #had to do alot of if statements here because not all races happen at the same round every year, so i had to do a bit of research
+        if i == 2010:
+            request_urlAUS = (f"http://ergast.com/api/f1/{i}/2/qualifying.json")
+        else:
+            request_urlAUS = (f"http://ergast.com/api/f1/{i}/1/qualifying.json")
+        request_urlMON = (f"http://ergast.com/api/f1/{i}/6/qualifying.json")
+        if i == 2014 or i == 2017 or i == 2012 or i == 2011 or i == 2009:
+            request_urlItaly = (f"http://ergast.com/api/f1/{i}/13/qualifying.json")
+        elif i == 2015 or i == 2013:
+            request_urlItaly = (f"http://ergast.com/api/f1/{i}/12/qualifying.json")
+        else:
+            request_urlItaly = (f"http://ergast.com/api/f1/{i}/14/qualifying.json")
+
+    # Submit request and format output
+        response_dataAUS = requests.get(request_urlAUS).json()
+        response_dataMON = requests.get(request_urlMON).json()
+        response_dataItaly = requests.get(request_urlItaly).json()
+
+
+    # Select fact
+        qualiDataAUS = response_dataAUS["MRData"]["RaceTable"]["Races"][0]["QualifyingResults"][0]['Q3']
+        dicAUS[f'{i}'] = (qualiDataAUS)
+        qualiDataMON = response_dataMON["MRData"]["RaceTable"]["Races"][0]["QualifyingResults"][0]['Q3']
+        dicMON[f'{i}'] = (qualiDataMON)
+        qualiDataItaly = response_dataItaly["MRData"]["RaceTable"]["Races"][0]["QualifyingResults"][0]['Q3']
+        dicItaly[f'{i}'] = (qualiDataItaly)
+
+    dicAll = {}
+    for i in range(2009,2020):
+        dicAll[f"{i}"] = [dicAUS[f"{i}"],dicMON[f"{i}"],dicItaly[f"{i}"]]
+    #print(dicAll)
+
+    dfAll = pd.DataFrame.from_dict(dicAll, orient='index')
+    dfAll.columns = ['Australia','Monoco','Monza']
+
+    def time_to_seconds(time_str):
+        return float(time_str.replace("1:",""))
+    dfAll['Australia Seconds'] = dfAll['Australia'].apply(time_to_seconds) + 60
+    dfAll['Monoco Seconds'] = dfAll['Monoco'].apply(time_to_seconds) + 60
+    dfAll['Monza Seconds'] = dfAll['Monza'].apply(time_to_seconds) + 60
+
+    dfAll.index.name = 'year'
+    f1_seconds = dfAll.drop(['Australia', 'Monoco', 'Monza'], axis=1).copy()
+    f1_seconds = f1_seconds.reset_index().copy()
+    f1_seconds['Albert Park Pct Change'] = f1_seconds['Australia Seconds'].pct_change()
+    f1_seconds['Monoco Pct Change'] = f1_seconds['Monoco Seconds'].pct_change()
+    f1_seconds['Monza Pct Change'] = f1_seconds['Monza Seconds'].pct_change()
+    f1_pct_change = f1_seconds.drop(['Australia Seconds', 'Monoco Seconds','Monza Seconds'], axis=1).copy()
+    f1_pct_change = f1_pct_change.dropna()
+    f1_pct_change.loc[8, 'Monza Pct Change'] = -0.019614 
+    f1_pct_change.loc[5, 'Albert Park Pct Change'] = 0.019247
+    f1_pct_change['mean'] = f1_pct_change.mean(axis=1)
+    f1_quali = f1_seconds.copy()
+    f1_quali.loc[5, 'Australia Seconds'] = 90.934
+    f1_quali.loc[8, 'Monza Seconds'] = 83.221
+    tech_data = {}
+    tech_data['f1_seconds'] =f1_seconds
+    tech_data['f1_pct_change'] = f1_pct_change
+    tech_data['f1_quali'] = f1_quali
+    return tech_data
+
+
+
+def tech_imp_scatterPlot(f1_quali):
+    figMonoco = px.scatter(f1_quali, x="year", y="Monoco Seconds", trendline="lowess",title = "Monoco Grand Prix - High Down Force Track - Qualifying times")
+    #figMonoco.show()
+    figAus = px.scatter(f1_quali, x="year", y="Australia Seconds", trendline="lowess", title = "Australian Grand Prix - High Speed/High Down Force Track Qualifying times") #, trendline_scope="overall")
+    #figAus.show()
+    figMonz = px.scatter(f1_quali, x="year", y="Monza Seconds", trendline="lowess", title = "Italian Grand Prix - High Speed Track Qualifying times")
+    #figMonz.show()
+    tech_imp = [figMonoco,figAus,figMonz]
+    return tech_imp
+    
+    
+    
+def tech_pct_scatterPlot(f1_pct_change):
+    fig_pct_changeAus = px.scatter(f1_pct_change, x="year", y="mean",trendline="lowess", title = "Average Percentage Change in track time")#, color='country')
+    return fig_pct_changeAus
+
+if __name__ == "__main__":
+    tech_data = tech_improvement_data()
+    tech_pct_scatterPlot(tech_data)
+    tech_pct_scatterPlot.show()
