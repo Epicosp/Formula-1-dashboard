@@ -16,7 +16,9 @@ While looking at the budgets of formula 1 racing the question that came to me wa
 <br>
 The purpose of these caps is to provide long term financial sustainability for teams, and incentives for them to stay in the competition.  At the same time this created a more level playing field, generating greater interest in the sport and potentially new followers, as closeness of the competition enhances the spectacle for Formula 1 Fans.  Already in 2021 we have seen a challenge to the reigning champion, Lewis Hamilton and Mercedes, who won the championship between 2017 and 2020.  They have been dethroned in the first year of expenditure caps in 2021. 
 <br>
+
 # Conclusion
+
 We have seen the evolution of Formula 1 racing from 1950 when Giuseppe Farina donned his scull cap and googles, jumping into his racing car without seatbelt in his 350 brake horse power Alpha Romeo to current day, Lewis Hamilton suited up in his fire proof racing overalls and his 1000 Brake Horse Power Mercedes,  which has been aerodynamically designed with a carbon fibre shell.   In this time constructor teams have been looking for advantages through technology, strategy employing a team of engineers and data analysts running monte carlo systems and game theory outcomes on their computer models to gain any advantage possible to enhance the chances of their driver winning the Grand Prix and ultimately the Driver and Manufacturer championship.  With budget spending capped and rules aligned for all competitors, the Formula Championship has never been more competitive for participants and interesting for racing fans.
 
 
