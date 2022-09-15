@@ -4,13 +4,40 @@ We chose to analyse areas such as technological changes, pit stop times/starting
 
 Over the course of 72 years of Formula 1 racing, it has grown to a global sport and we have seen many changes in technology, safety and strategy to enhance the competition and spectacle of the sport
 
-# Images Used
-* ![F1 Circuits Around the World](images/worldf1circuit.png)
+---
+# The dashboard layout
+## Intro 
+the intro consisted of a playable video, some live updating dials presenting information of the latest season numbers and a visual of the drives from around the world 
 
+![intro](images/intro.png)
+
+---
+
+## Technology
+The technology tab discussed the impact of technological improvements and engineering on lap times for a few specific circuits.
+
+![technology](images/engineering.png)
+
+---
+
+## Strategy
+The strategy tab outlined some analysis of the effect of pit time and strategy for overall race position.
+
+![strategy](images/strategy.png)
+
+## Budget
+
+the budget tab outlined the role of budget on a team's success in the overall standings and particularly shows the effect that budget caps have had on the sport.
+
+![budget](images/budget.png)
+
+---
+# Analysis/Discussion
 * In almost 70 year history of the race between 1950 and 2018, UK and Germany are the two countries that have chalked up the most nunber of wins - over 70% of the total races.
 
 * UK's total number of wins nearly doubled that of Germany in during the period.
 
+![F1 Circuits Around the World](images/worldf1circuit.png)
 ## Some Querky Formula 1 facts:
 Formula 1 racing commenced in 1950 with the first race at Silverstone, England. England is the only county to have a Formula 1 race every year since inception. The Ferrari team is distinguished by its red colour, however John Surtees clinched the 1964 Championship in a Ferrari painted blue due to a disagreement that Enzo Ferrari had with the Italian Automobile Club.
 Jochen Rindt is the only driver in history to win a world championship posthumously after a fatal accident in practice at the Italian Grand Prix in 1970. He maintained his lead in the championship for the remaining 3 races to clinch the title.
@@ -41,19 +68,26 @@ We have seen the evolution of Formula 1 racing from 1950 when Giuseppe Farina do
 
 ![Winning Drivers (2017 - 2021)](images/driverwinnersbyyear.png)
 
+---
 # Challenges Faced
 * Pushing and merging data to the main branch in the GitHub repository.
 * The data clensing process was tedious.
 * Flattening deeply nested JSON files.
 * Some charts did not display until bokeh was reinstalled.
 
+---
 ## Sources:
 Essentiallysports.com
+
 Beyondtheflag.com
+
 Autoweek.com
+
+Ergast.com
+
 References:
 Jacob Polychronis – Fox Sport -3/2/2022
 Garry Anderson – The race.com – 1/2/2022
 * [Wikipedia](https://en.wikipedia.org/wiki/List_of_Formula_One_circuits)
 * Python package used: [Fast F1](https://github.com/theOehrly/Fast-F1)
-* Import from csv downloaded from website
+* Import from csv downloaded from ergast db
